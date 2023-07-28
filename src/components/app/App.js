@@ -5,13 +5,14 @@ import CharList from "../charList/CharList";
 import CharInfo from "../charInfo/CharInfo";
 
 import decoration from '../../resources/img/vision.png';
+import ErrorBoundary from "../errorBoundary/errorBoundary";
 
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeChar: 1011227
+      activeChar: null
     }
   }
 
@@ -27,10 +28,19 @@ class App extends Component {
       <div className="app">
         <AppHeader/>
         <main>
-            <RandomChar/>
+            <ErrorBoundary>
+              <RandomChar/>
+            </ErrorBoundary>
             <div className="char__content">
-                <CharList activeChar={this.state.activeChar} onActiveCharChange={this.onActiveCharChange} />
-                <CharInfo activeChar={this.state.activeChar} />
+                <ErrorBoundary>
+                <CharList 
+                  activeChar={this.state.activeChar} 
+                  onActiveCharChange={this.onActiveCharChange} />
+                </ErrorBoundary>
+                <ErrorBoundary>
+                  <CharInfo 
+                    activeChar={this.state.activeChar} />
+                </ErrorBoundary>
             </div>
             <img className="bg-decoration" src={decoration} alt="vision"/>
         </main>

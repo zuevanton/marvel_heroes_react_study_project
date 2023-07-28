@@ -1,14 +1,16 @@
 import { Component } from 'react';
 import './charInfo.scss';
 import MarvelService from '../../services/MarvelService';
+import ErrorMessage from '../errorMessage/ErrorMessage';
+import Spinner from '../spinner/Spinner';
+import Skeleton from '../skeleton/Skeleton';
 
 class CharInfo extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeChar: this.props.activeChar,
-      char: {},
-      loading: true,
+      char: null,
+      loading: false,
       error: false
     }
   }
@@ -29,12 +31,20 @@ class CharInfo extends Component {
   }
 
   createChar = () => {
+    if(!this.props.activeChar) return;
     this.onCharLoading();
     this.marvelService
       .getCharacter(this.props.activeChar)
       .then(this.onCharLoaded)
-      .catch(res => console.log(res))
+      .catch(this.onError)
   }
+
+  onError = () => {
+		this.setState({
+			loading: false,
+			error: true
+		})
+	}
 
   componentDidMount() {
     this.createChar()
@@ -47,7 +57,7 @@ class CharInfo extends Component {
   }
 
   renderComicsList(list) {
-    if(list === undefined) return null;
+    
     if(list.length === 0) return 'комиксов не найдено'
     
     const comicsList = list.map((item, i) => {
@@ -66,6 +76,16 @@ class CharInfo extends Component {
   }
 
   render() {
+    const {error, loading} = this.state;
+
+    if (error) {
+      return <ErrorMessage />
+    } else if (loading) {
+      return <Spinner />
+    } else if (!this.state.char){
+      return (<div className="char__info"><Skeleton /></div>)
+    }
+
     const {char: {thumbnail, name, description, homepage, wiki, comics}} = this.state;
 
     const comicsList = this.renderComicsList(comics);
