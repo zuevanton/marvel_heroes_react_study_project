@@ -1,62 +1,31 @@
-import { Component } from 'react';
+import { useEffect, useState } from 'react';
 import './charInfo.scss';
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Spinner from '../spinner/Spinner';
 import Skeleton from '../skeleton/Skeleton';
 
-class CharInfo extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      char: null,
-      loading: false,
-      error: false
-    }
+const CharInfo = (props) => {
+
+  const [char, setChar] = useState(null)
+  const {loading, error, getCharacter, clearError} = useMarvelService();
+
+  const onCharLoaded = (char) => {
+    setChar(char)
   }
 
-  marvelService = new MarvelService();
-
-  onCharLoaded = (char) => {
-    this.setState({
-      char,
-      loading: false
-    })
+  const createChar = () => {
+    if(!props.activeChar) return;
+    clearError()
+    getCharacter(props.activeChar)
+      .then(onCharLoaded)
   }
 
-  onCharLoading = () => {
-    this.setState({
-      loading: true
-    })
-  }
+  useEffect(() => {
+    createChar();
+  }, [props.activeChar])
 
-  createChar = () => {
-    if(!this.props.activeChar) return;
-    this.onCharLoading();
-    this.marvelService
-      .getCharacter(this.props.activeChar)
-      .then(this.onCharLoaded)
-      .catch(this.onError)
-  }
-
-  onError = () => {
-		this.setState({
-			loading: false,
-			error: true
-		})
-	}
-
-  componentDidMount() {
-    this.createChar()
-  }
-
-  componentDidUpdate(prevProps) {
-    if(this.props.activeChar !== prevProps.activeChar){
-      this.createChar()
-    }
-  }
-
-  renderComicsList(list) {
+  const renderComicsList = (list) => {
     
     if(list.length === 0) return 'комиксов не найдено'
     
@@ -75,23 +44,22 @@ class CharInfo extends Component {
     )
   }
 
-  render() {
-    const {error, loading} = this.state;
-
-    if (error) {
-      return <ErrorMessage />
-    } else if (loading) {
-      return <Spinner />
-    } else if (!this.state.char){
+  const renderContent = () => {
+    if (!char){
       return (<div className="char__info"><Skeleton /></div>)
     }
+    if (error) {
+      return <ErrorMessage />
+    } 
+    if (loading) {
+      return <Spinner />
+    } 
 
-    const {char: {thumbnail, name, description, homepage, wiki, comics}} = this.state;
-
-    const comicsList = this.renderComicsList(comics);
-
+    const {thumbnail, name, description, homepage, wiki, comics} = char;
+    const comicsList = renderComicsList(comics);
+    
     return (
-      <div className="char__info">
+      <>
         <div className="char__basics">
           <img src={thumbnail} alt="abyss"/>
           <div>
@@ -111,9 +79,15 @@ class CharInfo extends Component {
         </div>
         <div className="char__comics">Comics:</div>
         {comicsList}
-      </div>
+      </>
     )
   }
+
+  return (
+    <div className="char__info">
+      {renderContent()}
+    </div>
+  )
 }
 
 
