@@ -35,17 +35,26 @@ const useMarvelService = () => {
     return res.data.results.map(transformComics)
   }
 
+  const getComic = async (comicId) => {
+    const res = await request(`${_apiBase}comics/${comicId}?${_apiKey}`)
+    return transformComics(res.data.results[0])
+  }
+
   const transformComics = comics => {
     return {
       id: comics.id,
       thumbnail: comics.thumbnail.path + '.' + comics.thumbnail.extension,
       url: comics.urls[0].url,
       name: comics.title,
-      price: comics.prices[0].price
+      price: comics.prices[0].price,
+      description: comics.description || 'there is no description',
+      pageCount: comics.pageCount ? `${comics.pageCount} p.` : 'no info about num of pages',
+      language: comics.textObjects.language || 'en-us',
+      
     }
   }
 
-  return {loading, error, getAllCharacters, getCharacter, clearError, getAllComics}
+  return {loading, error, getAllCharacters, getCharacter, clearError, getAllComics, getComic}
 }
 
 export default useMarvelService;
