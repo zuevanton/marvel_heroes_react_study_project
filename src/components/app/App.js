@@ -1,44 +1,21 @@
-import { useState } from "react";
 import AppHeader from "../appHeader/AppHeader";
-import RandomChar from "../randomChar/RandomChar";
-import CharList from "../charList/CharList";
-import CharInfo from "../charInfo/CharInfo";
-import decoration from '../../resources/img/vision.png';
-import ErrorBoundary from "../errorBoundary/errorBoundary";
-import ComicsList from "../comicsList/ComicsList";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Comics, MainPage } from "../pages";
 
 
 const App = () => {
-
-  const [activeChar, setActiveChar] = useState(null);
-
-  const onActiveCharChange = (id) => {
-    setActiveChar(id)
-  }
-
-
   return (
-    <div className="app">
-      <AppHeader/>
-      <main>
-        {/* <ErrorBoundary>
-          <RandomChar/>
-        </ErrorBoundary>
-        <div className="char__content">
-          <ErrorBoundary>
-          <CharList 
-            activeChar={activeChar} 
-            onActiveCharChange={onActiveCharChange} />
-          </ErrorBoundary>
-          <ErrorBoundary>
-            <CharInfo 
-              activeChar={activeChar} />
-          </ErrorBoundary>
-        </div> */}
-        <ComicsList />
-        <img className="bg-decoration" src={decoration} alt="vision"/>
-      </main>
-    </div>
+    <Router>
+      <div className="app">
+        <AppHeader/>
+        <main>
+          <Routes>
+            <Route path="/" element={<MainPage/>} />
+            <Route path="/comics" element={<Comics/>} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   )
 }
 
